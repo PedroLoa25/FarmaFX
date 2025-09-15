@@ -17,35 +17,52 @@ import pe.edu.upeu.farmafx.utils.ValidacionUtils;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class MarcaController implements SupportsClose {
+public class MarcaController {
 
-    @FXML private TextField searchField;
-    @FXML private ChoiceBox<String> estadoFilter;   // "Todos", "Activos", "Inactivos"
-    @FXML private ComboBox<String> ordenCombo;      // "ID ↑", "ID ↓", "Nombre ↑", "Nombre ↓"
-    @FXML private Button refreshBtn;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ChoiceBox<String> estadoFilter;   // "Todos", "Activos", "Inactivos"
+    @FXML
+    private ComboBox<String> ordenCombo;      // "ID ↑", "ID ↓", "Nombre ↑", "Nombre ↓"
+    @FXML
+    private Button refreshBtn;
 
-    @FXML private TextField nombreField;
-    @FXML private CheckBox activoCheck;
-    @FXML private Button nuevoBtn;
-    @FXML private Button guardarBtn;
-    @FXML private Button salirBtn;
+    @FXML
+    private TextField nombreField;
+    @FXML
+    private CheckBox activoCheck;
+    @FXML
+    private Button nuevoBtn;
+    @FXML
+    private Button guardarBtn;
+    @FXML
+    private Button salirBtn;
 
-    @FXML private TableView<Marca> tabla;
-    @FXML private TableColumn<Marca, Integer> colId;
-    @FXML private TableColumn<Marca, String> colNombre;
-    @FXML private TableColumn<Marca, String> colEstado;
+    @FXML
+    private TableView<Marca> tabla;
+    @FXML
+    private TableColumn<Marca, Integer> colId;
+    @FXML
+    private TableColumn<Marca, String> colNombre;
+    @FXML
+    private TableColumn<Marca, String> colEstado;
+
+    private AdminMainController mainController;
 
     private final MarcaServicioI servicio = MarcaServicioImp.getInstance();
     private final ObservableList<Marca> data = FXCollections.observableArrayList();
     private FilteredList<Marca> filtered;
 
     private Integer selectedId = null;
-    private enum Mode { NONE, CREAR, EDITAR }
+
+    private enum Mode {NONE, CREAR, EDITAR}
+
     private Mode mode = Mode.NONE;
 
-    private Runnable onClose = () -> {};
-    @Override
-    public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
+    public void setMainController(AdminMainController mainController) {
+        this.mainController = mainController;
+    }
 
     @FXML
     public void initialize() {
@@ -117,7 +134,8 @@ public class MarcaController implements SupportsClose {
         switch (sel) {
             case "ID ↓" -> data.sort(Comparator.comparing(Marca::getIdMarca).reversed());
             case "Nombre ↑" -> data.sort(Comparator.comparing(Marca::getNombre, String.CASE_INSENSITIVE_ORDER));
-            case "Nombre ↓" -> data.sort(Comparator.comparing(Marca::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
+            case "Nombre ↓" ->
+                    data.sort(Comparator.comparing(Marca::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
             default -> data.sort(Comparator.comparing(Marca::getIdMarca));
         }
     }
@@ -184,6 +202,9 @@ public class MarcaController implements SupportsClose {
 
     @FXML
     public void onSalir() {
-        onClose.run();
+        // 5. MODIFICA ESTE MÉTODO
+        if (mainController != null) {
+            mainController.restoreHomeContent();
+        }
     }
 }

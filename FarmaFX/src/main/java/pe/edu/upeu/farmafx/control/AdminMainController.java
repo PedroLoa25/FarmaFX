@@ -56,13 +56,25 @@ public class AdminMainController {
     @FXML public void onOpenProductos() { loadInCenter("/fxml/productos.fxml"); }
     @FXML public void onOpenPromociones() { loadInCenter("/fxml/promociones.fxml");}
 
+    public void restoreHomeContent() {
+        if (homeContent != null) {
+            root.setCenter(homeContent);
+        }
+    }
+
     private void loadInCenter(String fxml) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent view = loader.load();
             Object ctl = loader.getController();
-            if (ctl instanceof SupportsClose sc) {
-                sc.setOnClose(() -> root.setCenter(homeContent));
+            if (ctl instanceof CategoriaController child) {
+                child.setMainController(this);
+            } else if (ctl instanceof MarcaController child) {
+                child.setMainController(this);
+            } else if (ctl instanceof ProductoController child) {
+                child.setMainController(this);
+            } else if (ctl instanceof PromocionController child) {
+                child.setMainController(this);
             }
             root.setCenter(view);
         } catch (Exception e) {

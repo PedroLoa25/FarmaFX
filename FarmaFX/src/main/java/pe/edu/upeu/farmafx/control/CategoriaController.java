@@ -17,7 +17,7 @@ import pe.edu.upeu.farmafx.utils.ValidacionUtils;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class CategoriaController implements SupportsClose {
+public class CategoriaController {
 
     @FXML private TextField searchField;
     @FXML private ChoiceBox<String> estadoFilter;   // "Todos", "Activos", "Inactivos"
@@ -35,6 +35,8 @@ public class CategoriaController implements SupportsClose {
     @FXML private TableColumn<Categoria, String> colNombre;
     @FXML private TableColumn<Categoria, String> colEstado;
 
+    private AdminMainController mainController;
+
     private final CategoriaServicioI servicio = CategoriaServicioImp.getInstance();
     private final ObservableList<Categoria> data = FXCollections.observableArrayList();
     private FilteredList<Categoria> filtered;
@@ -43,8 +45,10 @@ public class CategoriaController implements SupportsClose {
     private enum Mode { NONE, CREAR, EDITAR }
     private Mode mode = Mode.NONE;
 
-    private Runnable onClose = () -> {};
-    @Override public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
+
+    public void setMainController(AdminMainController mainController) {
+        this.mainController = mainController;
+    }
 
     @FXML
     public void initialize() {
@@ -198,6 +202,9 @@ public class CategoriaController implements SupportsClose {
 
     @FXML
     public void onSalir() {
-        onClose.run();
+        // 5. MODIFICA ESTE MÉTODO
+        if (mainController != null) {
+            mainController.restoreHomeContent();
+        }
     }
 }

@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 
-public class ProductoController implements SupportsClose {
+public class ProductoController {
 
     // Filtros
     @FXML private TextField searchField;
@@ -57,6 +57,8 @@ public class ProductoController implements SupportsClose {
     @FXML private TableColumn<Producto, Integer> colStock;
     @FXML private TableColumn<Producto, String>  colEstado;
 
+    private AdminMainController mainController;
+
     private final ProductoServicioI servicio = ProductoServicioImp.getInstance();
     private final MarcaServicioI marcaServicio = MarcaServicioImp.getInstance();
     private final CategoriaServicioI categoriaServicio = CategoriaServicioImp.getInstance();
@@ -68,8 +70,9 @@ public class ProductoController implements SupportsClose {
     private enum Mode { NONE, CREAR, EDITAR }
     private Mode mode = Mode.NONE;
 
-    private Runnable onClose = () -> {};
-    @Override public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
+    public void setMainController(AdminMainController mainController) {
+        this.mainController = mainController;
+    }
 
     @FXML
     public void initialize() {
@@ -367,5 +370,11 @@ public class ProductoController implements SupportsClose {
 
     private static String safeTrim(String s) { return s == null ? "" : s.trim(); }
     private void alert(Alert.AlertType type, String msg) { new Alert(type, msg).showAndWait(); }
-    @FXML public void onSalir() { onClose.run(); }
+    @FXML
+    public void onSalir() {
+        // 5. MODIFICA ESTE MÉTODO
+        if (mainController != null) {
+            mainController.restoreHomeContent();
+        }
+    }
 }
