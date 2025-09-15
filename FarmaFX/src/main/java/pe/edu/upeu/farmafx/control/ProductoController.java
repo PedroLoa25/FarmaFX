@@ -27,13 +27,13 @@ import java.util.Objects;
 
 public class ProductoController implements SupportsClose {
 
-    // Filtros (ya los tenías)
+    // Filtros
     @FXML private TextField searchField;
     @FXML private ChoiceBox<String> estadoFilter;   // "Todos", "Activos", "Inactivos"
     @FXML private ComboBox<String> ordenCombo;      // "ID ↑", "ID ↓", "Nombre ↑", "Nombre ↓", "Precio ↑", "Precio ↓", "Stock ↑", "Stock ↓"
     @FXML private Button refreshBtn;
 
-    // Formulario simple (nuevo)
+    // Formulario
     @FXML private TextField nombreField;
     @FXML private TextField precioField;
     @FXML private TextField stockField;
@@ -43,7 +43,7 @@ public class ProductoController implements SupportsClose {
     @FXML private Button nuevoBtn;
     @FXML private Button guardarBtn;
 
-    // Tabla (ya la tenías)
+    // Tabla
     @FXML private TableView<Producto> tabla;
     @FXML private TableColumn<Producto, Integer> colId;
     @FXML private TableColumn<Producto, String>  colNombre;
@@ -60,8 +60,10 @@ public class ProductoController implements SupportsClose {
     private final ObservableList<Producto> data = FXCollections.observableArrayList();
     private FilteredList<Producto> filtered;
 
-    // Control de edición: si es null => Nuevo, si no => Editar este ID
+    // Control de edición/creación
     private Integer editingId = null;
+    private enum Mode { NONE, CREAR, EDITAR }
+    private Mode mode = Mode.NONE;
 
     private Runnable onClose = () -> {};
     @Override public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
@@ -130,17 +132,53 @@ public class ProductoController implements SupportsClose {
             }
         });
 
-        // Selección en tabla => carga al formulario
+        // Selección en tabla => modo EDITAR
         tabla.getSelectionModel().selectedItemProperty().addListener((obs, a, sel) -> {
             if (sel == null) {
-                clearForm();
+                clearForm(); // mode -> NONE
             } else {
+                mode = Mode.EDITAR;
                 loadToForm(sel);
             }
+            validarFormulario();
         });
+
+        // Validación de formulario y estado del botón Guardar
+        guardarBtn.setDisable(true);
+        nombreField.textProperty().addListener((o, a, b) -> validarFormulario());
+        precioField.textProperty().addListener((o, a, b) -> validarFormulario());
+        stockField.textProperty().addListener((o, a, b) -> validarFormulario());
+        marcaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
+        categoriaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
+        activoCheck.selectedProperty().addListener((o, a, b) -> validarFormulario());
 
         // Cargar datos iniciales
         onRefresh();
+    }
+
+    private void validarFormulario() {
+        boolean modoActivo = mode != Mode.NONE;
+
+        String n = ValidacionUtils.normalizeBasic(nombreField.getText());
+        boolean okNombre = n.length() >= 3 && n.length() <= 50;
+
+        boolean okPrecio = false;
+        try {
+            double p = Double.parseDouble(safeTrim(precioField.getText()));
+            okPrecio = p >= 0;
+        } catch (Exception ignored) {}
+
+        boolean okStock = false;
+        try {
+            int s = Integer.parseInt(safeTrim(stockField.getText()));
+            okStock = s >= 0;
+        } catch (Exception ignored) {}
+
+        boolean okMarca = marcaCombo.getValue() != null;
+        boolean okCategoria = categoriaCombo.getValue() != null;
+
+        boolean habilitar = modoActivo && okNombre && okPrecio && okStock && okMarca && okCategoria;
+        guardarBtn.setDisable(!habilitar);
     }
 
     private void applyFilters() {
@@ -188,18 +226,18 @@ public class ProductoController implements SupportsClose {
         marcaCombo.getItems().setAll(marcaServicio.listActive());
         categoriaCombo.getItems().setAll(categoriaServicio.listActive());
 
-        // Limpia filtros
+        // Limpiar filtros
         if (searchField != null) searchField.clear();
         if (estadoFilter != null) estadoFilter.setValue("Todos");
         if (ordenCombo != null) ordenCombo.setValue("ID ↑");
 
-        // Recarga de datos
+        // Recargar datos
         data.setAll(servicio.listAll());
         data.sort(Comparator.comparing(Producto::getIdProducto));
         applyFilters();
 
         tabla.getSelectionModel().clearSelection();
-        clearForm();
+        clearForm(); // mode -> NONE, deshabilita Guardar
     }
 
     // Formulario: Nuevo
@@ -207,6 +245,8 @@ public class ProductoController implements SupportsClose {
     private void onNuevo() {
         tabla.getSelectionModel().clearSelection();
         clearForm();
+        mode = Mode.CREAR;
+        validarFormulario();
         nombreField.requestFocus();
     }
 
@@ -225,16 +265,26 @@ public class ProductoController implements SupportsClose {
             Categoria categoria = categoriaCombo.getValue();
             Estado estado = (activoCheck.isSelected() ? Estado.ACTIVO : Estado.INACTIVO);
 
-            if (editingId == null) {
-                // Crear (SIN estado, porque create(...) recibe 5 parámetros)
-                servicio.create(nombre, precio, stock, marca, categoria);
-            } else {
-                // Actualizar (con estado)
+            if (mode == Mode.CREAR) {
+                // Crear respetando el check (create no recibe estado)
+                Producto nuevo = servicio.create(nombre, precio, stock, marca, categoria);
+                if (!activoCheck.isSelected()) {
+                    servicio.toggleEstado(nuevo.getIdProducto());
+                }
+                alert(Alert.AlertType.INFORMATION, "Producto creado correctamente.");
+            } else if (mode == Mode.EDITAR) {
+                if (editingId == null) {
+                    alert(Alert.AlertType.WARNING, "No hay selección para editar.");
+                    return;
+                }
                 servicio.update(editingId, nombre, precio, stock, estado, marca, categoria);
+                alert(Alert.AlertType.INFORMATION, "Producto actualizado correctamente.");
+            } else {
+                // Modo NONE: no debería guardar
+                return;
             }
 
             onRefresh();
-            alert(Alert.AlertType.INFORMATION, "Producto guardado correctamente.");
         } catch (NumberFormatException nfe) {
             alert(Alert.AlertType.WARNING, "Verifica los valores numéricos (precio y stock).");
         } catch (Exception e) {
@@ -270,6 +320,8 @@ public class ProductoController implements SupportsClose {
         if (activoCheck != null) activoCheck.setSelected(true);
         if (marcaCombo != null) marcaCombo.getSelectionModel().clearSelection();
         if (categoriaCombo != null) categoriaCombo.getSelectionModel().clearSelection();
+        mode = Mode.NONE;
+        validarFormulario();
     }
 
     private static String safeTrim(String s) { return s == null ? "" : s.trim(); }

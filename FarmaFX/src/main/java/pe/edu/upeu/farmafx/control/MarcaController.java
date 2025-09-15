@@ -142,7 +142,11 @@ public class MarcaController implements SupportsClose {
         try {
             ValidacionUtils.validarNombre(nombre, 3, 50);
             if (mode == Mode.CREAR) {
-                servicio.create(nombre);
+                // Crear respetando el check
+                Marca nueva = servicio.create(nombre);
+                if (!activoCheck.isSelected()) {
+                    servicio.toggleEstado(nueva.getIdMarca());
+                }
                 new Alert(Alert.AlertType.INFORMATION, "Marca creada").showAndWait();
             } else if (mode == Mode.EDITAR) {
                 if (selectedId == null) throw new Exception("No hay selección para editar.");

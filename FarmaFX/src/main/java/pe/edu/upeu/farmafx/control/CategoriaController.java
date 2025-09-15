@@ -153,7 +153,11 @@ public class CategoriaController implements SupportsClose {
         try {
             ValidacionUtils.validarNombre(nombre, 3, 50);
             if (mode == Mode.CREAR) {
-                servicio.create(nombre);
+                // Crear respetando el check
+                Categoria nueva = servicio.create(nombre);
+                if (!activoCheck.isSelected()) {
+                    servicio.toggleEstado(nueva.getIdCategoria());
+                }
                 new Alert(Alert.AlertType.INFORMATION, "Categoría creada").showAndWait();
             } else if (mode == Mode.EDITAR) {
                 if (selectedId == null) throw new Exception("No hay selección para editar.");
