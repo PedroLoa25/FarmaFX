@@ -3,7 +3,6 @@ package pe.edu.upeu.farmafx.control;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Alert;
@@ -51,7 +50,7 @@ public class MainController {
         setMenusVisible(false);
         FXMLLoader fx = loadIntoCenter("/fxml/login.fxml");
 
-        // Intentar enlazar callback de éxito de login si el controller lo expone
+        // Enlazar callback de éxito de login si el controller lo expone
         Object ctrl = fx.getController();
         if (ctrl != null) {
             try {
