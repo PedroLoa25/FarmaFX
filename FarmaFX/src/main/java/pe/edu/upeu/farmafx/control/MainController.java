@@ -99,6 +99,11 @@ public class MainController {
         loadInCenter("/fxml/marcas.fxml");
     }
 
+    @FXML
+    public void onOpenProductos() {
+        loadInCenter("/fxml/productos.fxml");
+    }
+
     private void loadInCenter(String fxml) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));

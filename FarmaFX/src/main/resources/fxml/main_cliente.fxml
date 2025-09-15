@@ -22,6 +22,8 @@
                     <items>
                         <MenuItem text="Categorías" onAction="#onOpenCategorias"/>
                         <MenuItem text="Marcas" onAction="#onOpenMarcas"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem text="Productos" onAction="#onOpenProductos"/>
                     </items>
                 </Menu>
                 <!-- Más adelante: menú Compras -->

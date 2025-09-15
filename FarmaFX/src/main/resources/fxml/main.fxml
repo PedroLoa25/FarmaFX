@@ -18,10 +18,14 @@
                             <MenuItem text="Salir" onAction="#onExit"/>
                         </items>
                     </Menu>
+
                     <Menu text="Catálogos" fx:id="menuCatalogos">
+
                         <items>
                             <MenuItem text="Categorías" onAction="#onOpenCategorias"/>
                             <MenuItem text="Marcas" onAction="#onOpenMarcas"/>
+                            <SeparatorMenuItem/>
+                            <MenuItem text="Productos" onAction="#onOpenProductos"/>
                         </items>
                     </Menu>
                     <Menu text="Ayuda">
