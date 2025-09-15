@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="mainContent" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.ClienteMainController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.ClienteMainController">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -28,40 +18,21 @@
                         <MenuItem mnemonicParsing="false" onAction="#onExit" text="Salir" />
                     </items>
                 </Menu>
-                <!-- MENÚ NAVEGACIÓN ELIMINADO -->
-                <Menu text="Ayuda">
+                <Menu mnemonicParsing="false" text="Navegación">
                     <items>
-                        <MenuItem onAction="#onAbout" text="Acerca de" />
+                        <MenuItem mnemonicParsing="false" onAction="#onShowPromociones" text="Ver Promociones" />
+                        <MenuItem mnemonicParsing="false" onAction="#onShowProductos" text="Buscar Productos" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Ayuda">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#onAbout" text="Acerca de" />
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
     </top>
     <center>
-        <!-- Contenedor principal para la lógica de vistas -->
-        <VBox fx:id="viewContainer" spacing="15.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-            </padding>
-            <children>
-                <!-- CONTROLES DE BÚSQUEDA Y CATEGORÍAS -->
-                <HBox alignment="CENTER_LEFT" spacing="20.0">
-                    <children>
-                        <!-- BOTÓN DE REFRESCAR AÑADIDO -->
-                        <Button fx:id="refreshButton" onAction="#onRefresh" prefHeight="30.0" prefWidth="30.0" text="↺" HBox.hgrow="NEVER">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                        </Button>
-                        <TextField fx:id="searchField" prefWidth="300.0" promptText="Buscar producto..." HBox.hgrow="ALWAYS" />
-                        <Label text="Filtrar por Categoría:" />
-                        <ComboBox fx:id="categoryComboBox" prefWidth="250.0" promptText="Todas las categorías" />
-                    </children>
-                </HBox>
-
-                <!-- El contenido dinámico (promociones o productos) se insertará aquí desde el controlador -->
-
-            </children>
-        </VBox>
+        <AnchorPane fx:id="contentPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
     </center>
 </BorderPane>

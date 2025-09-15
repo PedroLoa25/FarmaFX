@@ -33,7 +33,6 @@ public class AdminMainController {
     public void initialize() {
         if (root != null) homeContent = root.getCenter();
     }
-
     @FXML
     public void onLogout() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
@@ -42,6 +41,7 @@ public class AdminMainController {
             if (onLogoutAction != null) onLogoutAction.run();
         }
     }
+
 
     @FXML
     public void onExit() {

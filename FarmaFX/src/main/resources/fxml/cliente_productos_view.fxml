@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.ClienteProductosController">
+    <children>
+        <HBox fx:id="filtersPane" alignment="CENTER_LEFT" spacing="10.0">
+            <children>
+                <Label text="Buscar:" />
+                <TextField fx:id="searchField" promptText="Buscar producto..." />
+                <Label text="Categoría:" />
+                <ComboBox fx:id="categoryComboBox" prefWidth="150.0" promptText="Todas" />
+                <Label text="Marca:" />
+                <ComboBox fx:id="marcaFilterCombo" prefWidth="150.0" promptText="Todas" />
+                <Label text="Precio:" />
+                <TextField fx:id="minPriceField" prefWidth="70.0" promptText="Mín." />
+                <Label text="-" />
+                <TextField fx:id="maxPriceField" prefWidth="70.0" promptText="Máx." />
+                <Label text="Ordenar por:" />
+                <ComboBox fx:id="ordenFilterCombo" prefWidth="150.0" promptText="Relevancia" />
+            </children>
+        </HBox>
+        <TableView fx:id="tablaProductos" VBox.vgrow="ALWAYS" />
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+</VBox>
