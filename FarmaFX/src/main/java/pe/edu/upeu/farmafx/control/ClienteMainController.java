@@ -3,6 +3,7 @@ package pe.edu.upeu.farmafx.control;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
@@ -19,6 +20,7 @@ import pe.edu.upeu.farmafx.servicio.PromocionServicioImp;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 public class ClienteMainController { // Quitamos "implements SupportsClose" porque initData lo reemplaza
 
@@ -91,8 +93,10 @@ public class ClienteMainController { // Quitamos "implements SupportsClose" porq
 
     @FXML
     public void onLogout() {
-        if (onLogoutAction != null) {
-            onLogoutAction.run();
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
+        Optional<ButtonType> res = confirm.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.OK) {
+            if (onLogoutAction != null) onLogoutAction.run();
         }
     }
 

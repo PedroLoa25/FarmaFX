@@ -21,12 +21,6 @@ public class AdminMainController {
     private Runnable onLogoutAction;
     private Runnable onExitAction;
 
-    /**
-     * Inicializa los datos del controlador después de cargarlo.
-     * @param usuario El usuario que ha iniciado sesión.
-     * @param onLogout La acción a ejecutar al cerrar sesión.
-     * @param onExit La acción a ejecutar al salir de la aplicación.
-     */
     public void initData(Usuario usuario, Runnable onLogout, Runnable onExit) {
         this.onLogoutAction = onLogout;
         this.onExitAction = onExit;
