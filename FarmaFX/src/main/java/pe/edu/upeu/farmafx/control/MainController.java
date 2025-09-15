@@ -57,7 +57,7 @@ public class MainController {
                 ctrl.getClass().getMethod("setOnLoginSuccess", Runnable.class)
                         .invoke(ctrl, (Runnable) this::showCatalog);
             } catch (NoSuchMethodException ignored) {
-                // Si tu LoginController no tiene este método, puedes navegar manualmente desde el menú.
+                // Si LoginController no tiene el hook, puedes navegar desde el menú.
             } catch (Exception ex) {
                 throw new RuntimeException("No se pudo enlazar login success", ex);
             }
@@ -68,7 +68,7 @@ public class MainController {
         setMenusVisible(true);
         FXMLLoader fx = loadIntoCenter("/fxml/catalogo.fxml");
 
-        // Conectar botones del catálogo a sus acciones (no necesita controller propio)
+        // Conectar botones del catálogo (no requiere controller propio)
         Parent view = fx.getRoot();
         Button btnCategorias = (Button) view.lookup("#btnCategorias");
         Button btnMarcas     = (Button) view.lookup("#btnMarcas");
@@ -80,7 +80,7 @@ public class MainController {
     }
 
     public void showCategorias() {
-        setMenusVisible(false);                // aislar módulos
+        setMenusVisible(false); // aislar módulos
         loadIntoCenter("/fxml/categoria.fxml");
     }
 
@@ -94,7 +94,7 @@ public class MainController {
         loadIntoCenter("/fxml/producto.fxml");
     }
 
-    // Handlers del Menú
+    // Menú
     @FXML private void onMenuCatalogo() { showCatalog(); }
     @FXML private void onMenuCerrarSesion() { showLogin(); }
     @FXML private void onMenuAcercaDe() {

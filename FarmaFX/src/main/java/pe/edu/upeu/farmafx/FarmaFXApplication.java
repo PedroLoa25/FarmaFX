@@ -17,8 +17,7 @@ public class FarmaFXApplication extends Application {
         Scene scene = new Scene(loader.load());
         stage.setTitle("FarmaFX");
         stage.setScene(scene);
-        stage.setResizable(true);
-        stage.setMaximized(true);
+        stage.setResizable(false);
 
         stage.setOnCloseRequest(evt -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);

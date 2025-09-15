@@ -24,6 +24,7 @@
         </MenuBar>
     </top>
 
+    <!-- El centro lo ocupa Login/Catálogo/Módulos -->
     <center>
         <StackPane/>
     </center>

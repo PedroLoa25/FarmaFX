@@ -22,7 +22,7 @@ public class LoginController {
 
     private final UsuarioServicioI usuarioServicio = UsuarioServicioImp.getInstance();
 
-    // Callback para que MainController navegue al Catálogo cuando el login es correcto
+    // Hook para que MainController navegue al Catálogo al autenticar correctamente
     private Runnable onLoginSuccess;
     public void setOnLoginSuccess(Runnable r) { this.onLoginSuccess = r; }
 
@@ -78,10 +78,8 @@ public class LoginController {
 
         try {
             Usuario u = usuarioServicio.authenticate(dni, pass);
-
-            // Login correcto: notifica al MainController para que navegue al Catálogo
+            // Autenticación correcta: NO abrir nuevas ventanas.
             if (onLoginSuccess != null) onLoginSuccess.run();
-
         } catch (UsuarioServicioImp.ErrorCredenciales e) {
             errorLabel.setText(e.getMessage());
             resetLoginForm();
@@ -93,7 +91,8 @@ public class LoginController {
 
     @FXML
     public void abrirRegistro(ActionEvent event) {
-        // Si mantienes un diálogo modal de registro, puedes conservar tu implementación actual
+        // Puedes conservar tu diálogo modal si lo deseas;
+        // aquí lo dejamos simple para no complicar
         new Alert(Alert.AlertType.INFORMATION, "Registro no implementado en este ejemplo.").showAndWait();
     }
 
