@@ -42,21 +42,18 @@ public class AdminMainController {
         if (res.isPresent() && res.get() == ButtonType.OK) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-                Parent rootLogin = loader.load();
-                Stage st = new Stage();
-                st.setTitle("FarmaFX - Login");
-                st.setScene(new Scene(rootLogin));
-                st.setResizable(false);
+                Parent loginRoot = loader.load();
 
-                // Pantalla completa para el login
-                st.setFullScreen(true);
-                st.setFullScreenExitHint("");
+                Stage stage = (Stage) root.getScene().getWindow();
+                stage.getScene().setRoot(loginRoot);
 
-                st.show();
-            } catch (IOException e) {
+                // Garantiza ventana completa, NO fullscreen
+                stage.setFullScreen(false);
+                stage.setMaximized(true);
+
+            } catch (Exception e) {
                 new Alert(Alert.AlertType.ERROR, "No se pudo abrir Login: " + e.getMessage()).showAndWait();
             }
-            ((Stage) root.getScene().getWindow()).close();
         }
     }
 

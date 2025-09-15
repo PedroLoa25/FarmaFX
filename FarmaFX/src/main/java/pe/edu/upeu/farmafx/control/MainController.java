@@ -10,6 +10,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import pe.edu.upeu.farmafx.enums.RolUsuario;
 import pe.edu.upeu.farmafx.modelo.Usuario;
+import javafx.application.Platform;
+import javafx.stage.Stage;
 
 public class MainController {
 
@@ -53,10 +55,26 @@ public class MainController {
         setMenusVisible(false);
         FXMLLoader fx = loadIntoCenter("/fxml/login.fxml");
 
+        // Enlazar callback de éxito de login si el controller lo expone
         Object ctrl = fx.getController();
         if (ctrl instanceof LoginController lc) {
             lc.setOnLoginSuccess(this::showHome);
+        } else {
+            try {
+                ctrl.getClass().getMethod("setOnLoginSuccess", Runnable.class)
+                        .invoke(ctrl, (Runnable) this::showCatalog);
+            } catch (NoSuchMethodException ignored) {
+            } catch (Exception ex) {
+                throw new RuntimeException("No se pudo enlazar login success", ex);
+            }
         }
+
+        // Asegura que el login NO esté en pantalla completa (F11)
+        Platform.runLater(() -> {
+            Stage stage = (Stage) root.getScene().getWindow();
+            stage.setFullScreen(false);   // sale de "pantalla completa"
+            stage.setMaximized(true);     // queda "ventana completa"
+        });
     }
 
     // Decide home según rol y reemplaza el root de la Scene
