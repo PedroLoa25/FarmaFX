@@ -36,28 +36,6 @@ public class AdminMainController {
     }
 
     @FXML
-    public void onLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
-        Optional<ButtonType> res = confirm.showAndWait();
-        if (res.isPresent() && res.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-                Parent loginRoot = loader.load();
-
-                Stage stage = (Stage) root.getScene().getWindow();
-                stage.getScene().setRoot(loginRoot);
-
-                // Garantiza ventana completa, NO fullscreen
-                stage.setFullScreen(false);
-                stage.setMaximized(true);
-
-            } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "No se pudo abrir Login: " + e.getMessage()).showAndWait();
-            }
-        }
-    }
-
-    @FXML
     public void onExit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Se cerrará la aplicación. ¿Continuar?");
         Optional<ButtonType> res = confirm.showAndWait();
@@ -95,6 +73,18 @@ public class AdminMainController {
             root.setCenter(view);
         } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR, "No se pudo cargar la vista:\n" + e.getMessage()).showAndWait();
+        }
+    }
+
+    private Runnable onLogoutAction = () -> {};
+    public void setOnLogoutAction(Runnable action) { this.onLogoutAction = action; }
+
+    @FXML
+    public void onLogout() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
+        Optional<ButtonType> res = confirm.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.OK) {
+            onLogoutAction.run(); // Llama a la acción (que será showLogin() en MainController)
         }
     }
 }

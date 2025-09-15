@@ -36,31 +36,6 @@ public class ClienteMainController {
     }
 
     @FXML
-    public void onLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
-        Optional<ButtonType> res = confirm.showAndWait();
-        if (res.isPresent() && res.get() == ButtonType.OK) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-                Parent rootLogin = loader.load();
-                Stage st = new Stage();
-                st.setTitle("FarmaFX - Login");
-                st.setScene(new Scene(rootLogin));
-                st.setResizable(false);
-
-                // Pantalla completa para el login
-                st.setFullScreen(true);
-                st.setFullScreenExitHint("");
-
-                st.show();
-            } catch (IOException e) {
-                new Alert(Alert.AlertType.ERROR, "No se pudo abrir Login: " + e.getMessage()).showAndWait();
-            }
-            ((Stage) root.getScene().getWindow()).close();
-        }
-    }
-
-    @FXML
     public void onExit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Se cerrará la aplicación. ¿Continuar?");
         Optional<ButtonType> res = confirm.showAndWait();
@@ -98,6 +73,18 @@ public class ClienteMainController {
             root.setCenter(view);
         } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR, "No se pudo cargar la vista:\n" + e.getMessage()).showAndWait();
+        }
+    }
+
+    private Runnable onLogoutAction = () -> {};
+    public void setOnLogoutAction(Runnable action) { this.onLogoutAction = action; }
+
+    @FXML
+    public void onLogout() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Deseas cerrar sesión?");
+        Optional<ButtonType> res = confirm.showAndWait();
+        if (res.isPresent() && res.get() == ButtonType.OK) {
+            onLogoutAction.run(); // Llama a la acción
         }
     }
 }

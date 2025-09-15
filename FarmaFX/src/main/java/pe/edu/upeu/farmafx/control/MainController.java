@@ -10,7 +10,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import pe.edu.upeu.farmafx.enums.RolUsuario;
 import pe.edu.upeu.farmafx.modelo.Usuario;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class MainController {
@@ -20,7 +19,10 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // Arranca en Login
+
+    }
+
+    public void postInit() {
         showLogin();
     }
 
@@ -51,33 +53,32 @@ public class MainController {
     }
 
     // Pantallas
-    public void showLogin() {
-        setMenusVisible(false);
-        FXMLLoader fx = loadIntoCenter("/fxml/login.fxml");
+    private void showLogin() {
+        try {
+            // Carga la vista de login
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            Parent loginView = loader.load();
 
-        // Enlazar callback de éxito de login si el controller lo expone
-        Object ctrl = fx.getController();
-        if (ctrl instanceof LoginController lc) {
-            lc.setOnLoginSuccess(this::showHome);
-        } else {
-            try {
-                ctrl.getClass().getMethod("setOnLoginSuccess", Runnable.class)
-                        .invoke(ctrl, (Runnable) this::showCatalog);
-            } catch (NoSuchMethodException ignored) {
-            } catch (Exception ex) {
-                throw new RuntimeException("No se pudo enlazar login success", ex);
-            }
-        }
+            // Asigna el callback para cuando el login sea exitoso
+            LoginController loginController = loader.getController();
+            loginController.setOnLoginSuccess(this::showHome);
 
-        // Asegura que el login NO esté en pantalla completa (F11)
-        Platform.runLater(() -> {
+            // Reemplaza el contenido de la ventana actual con la vista de login
+            root.getScene().setRoot(loginView);
+
+            // Ajusta el tamaño de la ventana para el login
             Stage stage = (Stage) root.getScene().getWindow();
-            stage.setFullScreen(false);   // sale de "pantalla completa"
-            stage.setMaximized(true);     // queda "ventana completa"
-        });
+            stage.setTitle("FarmaFX - Login");
+            stage.setResizable(false);
+            stage.setMaximized(false); // Nos aseguramos de que no esté maximizada
+            stage.sizeToScene();       // Ajusta el tamaño de la ventana al contenido
+            stage.centerOnScreen();    // Centra la ventana
+
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "No se pudo cargar la vista de login:\n" + e.getMessage()).showAndWait();
+        }
     }
 
-    // Decide home según rol y reemplaza el root de la Scene
     private void showHome(Usuario u) {
         try {
             String fxml = (u.getRol() == RolUsuario.ADMIN)
@@ -85,18 +86,29 @@ public class MainController {
                     : "/fxml/main_cliente.fxml";
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
-            Parent view = loader.load();
+            Parent homeView = loader.load();
 
-            Object c = loader.getController();
-            if (c instanceof AdminMainController amc) {
+            // Pasa los datos del usuario al controlador correspondiente
+            Object controller = loader.getController();
+            if (controller instanceof AdminMainController amc) {
                 amc.setUsuario(u);
-            } else if (c instanceof ClienteMainController cmc) {
+                // Asigna la acción de logout para volver al login
+                amc.setOnLogoutAction(this::showLogin);
+            } else if (controller instanceof ClienteMainController cmc) {
                 cmc.setUsuario(u);
+                // Asigna la acción de logout para volver al login
+                cmc.setOnLogoutAction(this::showLogin);
             }
 
-            // Reemplazar el root en el mismo Stage
+            // Reemplaza el contenido de la ventana con la vista principal
+            root.getScene().setRoot(homeView);
+
+            // Ajusta el tamaño de la ventana para la vista principal
             Stage stage = (Stage) root.getScene().getWindow();
-            stage.getScene().setRoot(view);
+            stage.setTitle("FarmaFX");
+            stage.setResizable(true);
+            stage.setMaximized(true); // ¡Ahora sí la maximizamos!
+            stage.centerOnScreen();
 
         } catch (Exception e) {
             new Alert(Alert.AlertType.ERROR, "No se pudo abrir la vista principal:\n" + e.getMessage()).showAndWait();

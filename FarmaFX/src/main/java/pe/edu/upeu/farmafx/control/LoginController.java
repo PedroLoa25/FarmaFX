@@ -3,13 +3,19 @@ package pe.edu.upeu.farmafx.control;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader; // <--- AÑADIR esta importación
+import javafx.scene.Parent;    // <--- AÑADIR esta importación
+import javafx.scene.Scene;      // <--- AÑADIR esta importación
 import javafx.scene.control.*;
 import javafx.scene.control.TextFormatter.Change;
+import javafx.stage.Modality;  // <--- AÑADIR esta importación
+import javafx.stage.Stage;      // <--- AÑADIR esta importación
 import pe.edu.upeu.farmafx.modelo.Usuario;
 import pe.edu.upeu.farmafx.servicio.UsuarioServicioI;
 import pe.edu.upeu.farmafx.servicio.UsuarioServicioImp;
 import pe.edu.upeu.farmafx.utils.ValidacionUtils;
 
+import java.io.IOException; // <--- AÑADIR esta importación
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.function.Consumer;
@@ -91,7 +97,30 @@ public class LoginController {
 
     @FXML
     public void abrirRegistro(ActionEvent event) {
-        new Alert(Alert.AlertType.INFORMATION, "Registro no implementado en este ejemplo.").showAndWait();
+        // ---- INICIO DEL CÓDIGO CORREGIDO ----
+        try {
+            // 1. Cargar el FXML de la ventana de registro
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
+            Parent root = loader.load();
+
+            // 2. Crear una nueva ventana (Stage) para el diálogo de registro
+            Stage stage = new Stage();
+            stage.setTitle("Crear Nueva Cuenta");
+            stage.setScene(new Scene(root));
+
+            // 3. (Opcional pero recomendado) Hacer que la ventana de login se bloquee hasta que se cierre la de registro
+            stage.initModality(Modality.APPLICATION_MODAL);
+            Stage loginStage = (Stage) dniField.getScene().getWindow();
+            stage.initOwner(loginStage);
+
+            // 4. Mostrar la ventana y esperar a que el usuario la cierre
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de registro: " + e.getMessage()).show();
+            e.printStackTrace();
+        }
+        // ---- FIN DEL CÓDIGO CORREGIDO ----
     }
 
     @FXML
