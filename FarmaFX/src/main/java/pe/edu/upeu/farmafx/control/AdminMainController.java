@@ -62,6 +62,7 @@ public class AdminMainController {
     @FXML public void onOpenCategorias() { loadInCenter("/fxml/categorias.fxml"); }
     @FXML public void onOpenMarcas() { loadInCenter("/fxml/marcas.fxml"); }
     @FXML public void onOpenProductos() { loadInCenter("/fxml/productos.fxml"); }
+    @FXML public void onOpenPromociones() { loadInCenter("/fxml/promociones.fxml");}
 
     private void loadInCenter(String fxml) {
         try {

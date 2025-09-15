@@ -17,15 +17,31 @@ public class Usuario {
         this.rol = rol;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getDni() { return dni; }
-    public void setDni(String dni) { this.dni = dni; }
+    public String getDni() {
+        return dni;
+    }
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-    public RolUsuario getRol() { return rol; }
-    public void setRol(RolUsuario rol) { this.rol = rol; }
+    public RolUsuario getRol() {
+        return rol;
+    }
+    public void setRol(RolUsuario rol) {
+        this.rol = rol;
+    }
 }

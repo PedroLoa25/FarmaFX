@@ -29,8 +29,12 @@ public class ProductoController implements SupportsClose {
 
     // Filtros
     @FXML private TextField searchField;
-    @FXML private ChoiceBox<String> estadoFilter;   // "Todos", "Activos", "Inactivos"
-    @FXML private ComboBox<String> ordenCombo;      // "ID ↑", "ID ↓", "Nombre ↑", "Nombre ↓", "Precio ↑", "Precio ↓", "Stock ↑", "Stock ↓"
+    @FXML private ChoiceBox<String> estadoFilter;
+    // --- INICIO DE CAMBIOS ---
+    @FXML private ComboBox<Marca> marcaFilterCombo;
+    @FXML private ComboBox<Categoria> categoriaFilterCombo;
+    // --- FIN DE CAMBIOS ---
+    @FXML private ComboBox<String> ordenCombo;
     @FXML private Button refreshBtn;
 
     // Formulario
@@ -60,7 +64,6 @@ public class ProductoController implements SupportsClose {
     private final ObservableList<Producto> data = FXCollections.observableArrayList();
     private FilteredList<Producto> filtered;
 
-    // Control de edición/creación
     private Integer editingId = null;
     private enum Mode { NONE, CREAR, EDITAR }
     private Mode mode = Mode.NONE;
@@ -71,6 +74,9 @@ public class ProductoController implements SupportsClose {
     @FXML
     public void initialize() {
         NumberFormat money = NumberFormat.getCurrencyInstance(new Locale("es", "PE"));
+
+        precioField.setTextFormatter(new TextFormatter<>(ValidacionUtils.createDoubleFilter()));
+        stockField.setTextFormatter(new TextFormatter<>(ValidacionUtils.createIntegerFilter()));
 
         // Tabla
         colId.setCellValueFactory(new PropertyValueFactory<>("idProducto"));
@@ -95,17 +101,243 @@ public class ProductoController implements SupportsClose {
 
         // Filtros
         estadoFilter.getItems().setAll("Todos", "Activos", "Inactivos");
-        estadoFilter.setValue("Todos");
-        estadoFilter.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applyFilters());
-
         ordenCombo.getItems().setAll("ID ↑", "ID ↓", "Nombre ↑", "Nombre ↓", "Precio ↑", "Precio ↓", "Stock ↑", "Stock ↓");
-        ordenCombo.setValue("ID ↑");
-        ordenCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applySort());
 
         searchField.textProperty().addListener((obs, a, b) -> applyFilters());
+        estadoFilter.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applyFilters());
+        ordenCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applySort());
         refreshBtn.setOnAction(e -> onRefresh());
 
+        // --- INICIO DE CAMBIOS ---
+        // Configurar ComboBox de filtros (Marca y Categoría)
+        setupFilterComboBoxes();
+        marcaFilterCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applyFilters());
+        categoriaFilterCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> applyFilters());
+        // --- FIN DE CAMBIOS ---
+
         // Formulario: combos de marca y categoría
+        setupFormComboBoxes();
+
+        // Selección en tabla => modo EDITAR
+        tabla.getSelectionModel().selectedItemProperty().addListener((obs, a, sel) -> {
+            if (sel == null) {
+                clearForm();
+            } else {
+                mode = Mode.EDITAR;
+                loadToForm(sel);
+            }
+            validarFormulario();
+        });
+
+        // Validación de formulario y estado del botón Guardar
+        guardarBtn.setDisable(true);
+        nombreField.textProperty().addListener((o, a, b) -> validarFormulario());
+        precioField.textProperty().addListener((o, a, b) -> validarFormulario());
+        stockField.textProperty().addListener((o, a, b) -> validarFormulario());
+        marcaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
+        categoriaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
+        activoCheck.selectedProperty().addListener((o, a, b) -> validarFormulario());
+
+        // Cargar datos iniciales
+        onRefresh();
+    }
+
+    private void validarFormulario() {
+        boolean modoActivo = mode != Mode.NONE;
+        String n = ValidacionUtils.normalizeBasic(nombreField.getText());
+        boolean okNombre = n.length() >= 3 && n.length() <= 50;
+        boolean okPrecio = ValidacionUtils.isPositiveDouble(precioField.getText());
+        boolean okStock = ValidacionUtils.isPositiveInteger(stockField.getText());
+        boolean okMarca = marcaCombo.getValue() != null;
+        boolean okCategoria = categoriaCombo.getValue() != null;
+        boolean habilitar = modoActivo && okNombre && okPrecio && okStock && okMarca && okCategoria;
+        guardarBtn.setDisable(!habilitar);
+    }
+
+    private void applyFilters() {
+        final String q = ValidacionUtils.normalizeForSearch(searchField.getText());
+        final String estadoSel = estadoFilter.getValue();
+        // --- INICIO DE CAMBIOS ---
+        final Marca marcaSel = marcaFilterCombo.getValue();
+        final Categoria catSel = categoriaFilterCombo.getValue();
+        // --- FIN DE CAMBIOS ---
+
+        filtered.setPredicate(p -> {
+            if (p == null) return false;
+
+            // Filtro estado
+            if (Objects.equals(estadoSel, "Activos") && !p.getEstado().isActivo()) return false;
+            if (Objects.equals(estadoSel, "Inactivos") && p.getEstado().isActivo()) return false;
+
+            // --- INICIO DE CAMBIOS ---
+            // Filtro Marca (si hay una marca seleccionada, el producto debe tener esa marca)
+            if (marcaSel != null && !marcaSel.equals(p.getMarca())) return false;
+            // Filtro Categoría
+            if (catSel != null && !catSel.equals(p.getCategoria())) return false;
+            // --- FIN DE CAMBIOS ---
+
+            // Búsqueda por texto
+            String nom = ValidacionUtils.normalizeForSearch(p.getNombre());
+            String mar = ValidacionUtils.normalizeForSearch(p.getMarca() != null ? p.getMarca().getNombre() : "");
+            String cat = ValidacionUtils.normalizeForSearch(p.getCategoria() != null ? p.getCategoria().getNombre() : "");
+
+            if (q.isBlank()) return true;
+            return nom.contains(q) || mar.contains(q) || cat.contains(q);
+        });
+    }
+
+    private void applySort() {
+        String sel = ordenCombo.getValue();
+        if (sel == null) sel = "ID ↑";
+        switch (sel) {
+            case "ID ↓" -> data.sort(Comparator.comparing(Producto::getIdProducto).reversed());
+            case "Nombre ↑" -> data.sort(Comparator.comparing(Producto::getNombre, String.CASE_INSENSITIVE_ORDER));
+            case "Nombre ↓" -> data.sort(Comparator.comparing(Producto::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
+            case "Precio ↑" -> data.sort(Comparator.comparingDouble(Producto::getPrecio));
+            case "Precio ↓" -> data.sort(Comparator.comparingDouble(Producto::getPrecio).reversed());
+            case "Stock ↑" -> data.sort(Comparator.comparingInt(Producto::getStock));
+            case "Stock ↓" -> data.sort(Comparator.comparingInt(Producto::getStock).reversed());
+            default -> data.sort(Comparator.comparing(Producto::getIdProducto));
+        }
+    }
+
+    @FXML
+    public void onRefresh() {
+        // Recargar combos (por si cambian marcas/categorías activas)
+        // --- INICIO DE CAMBIOS ---
+        // Ahora se recargan tanto los combos de formulario como los de filtro
+        ObservableList<Marca> marcasActivas = FXCollections.observableArrayList(marcaServicio.listActive());
+        ObservableList<Categoria> categoriasActivas = FXCollections.observableArrayList(categoriaServicio.listActive());
+
+        marcaCombo.setItems(marcasActivas);
+        categoriaCombo.setItems(categoriasActivas);
+
+        ObservableList<Marca> todasMarcas = FXCollections.observableArrayList(marcaServicio.listAll());
+        todasMarcas.add(0, null); // Opción "Todas"
+        marcaFilterCombo.setItems(todasMarcas);
+
+        ObservableList<Categoria> todasCategorias = FXCollections.observableArrayList(categoriaServicio.listAll());
+        todasCategorias.add(0, null); // Opción "Todas"
+        categoriaFilterCombo.setItems(todasCategorias);
+        // --- FIN DE CAMBIOS ---
+
+        // Limpiar filtros
+        if (searchField != null) searchField.clear();
+        if (estadoFilter != null) estadoFilter.setValue("Todos");
+        if (ordenCombo != null) ordenCombo.setValue("ID ↑");
+        // --- INICIO DE CAMBIOS ---
+        if (marcaFilterCombo != null) marcaFilterCombo.setValue(null); // Resetea a "Todas"
+        if (categoriaFilterCombo != null) categoriaFilterCombo.setValue(null); // Resetea a "Todas"
+        // --- FIN DE CAMBIOS ---
+
+        // Recargar datos
+        data.setAll(servicio.listAll());
+        data.sort(Comparator.comparing(Producto::getIdProducto));
+        applyFilters();
+
+        tabla.getSelectionModel().clearSelection();
+        clearForm();
+    }
+
+    @FXML private void onNuevo() {
+        tabla.getSelectionModel().clearSelection();
+        clearForm();
+        mode = Mode.CREAR;
+        validarFormulario();
+        nombreField.requestFocus();
+    }
+
+    @FXML private void onGuardar() {
+        try {
+            String nombre = safeTrim(nombreField.getText());
+            double precio = Double.parseDouble(safeTrim(precioField.getText()));
+            int stock = Integer.parseInt(safeTrim(stockField.getText()));
+            Marca marca = marcaCombo.getValue();
+            Categoria categoria = categoriaCombo.getValue();
+            Estado estado = (activoCheck.isSelected() ? Estado.ACTIVO : Estado.INACTIVO);
+
+            if (nombre.isEmpty()) { throw new Exception("Ingresa el nombre del producto."); }
+            if (marca == null) { throw new Exception("Selecciona una marca."); }
+            if (categoria == null) { throw new Exception("Selecciona una categoría."); }
+
+            if (mode == Mode.CREAR) {
+                Producto nuevo = servicio.create(nombre, precio, stock, marca, categoria);
+                if (!activoCheck.isSelected()) {
+                    servicio.toggleEstado(nuevo.getIdProducto());
+                }
+                alert(Alert.AlertType.INFORMATION, "Producto creado correctamente.");
+            } else if (mode == Mode.EDITAR) {
+                if (editingId == null) { throw new Exception("No hay selección para editar."); }
+                servicio.update(editingId, nombre, precio, stock, estado, marca, categoria);
+                alert(Alert.AlertType.INFORMATION, "Producto actualizado correctamente.");
+            } else {
+                return;
+            }
+            onRefresh();
+        } catch (NumberFormatException nfe) {
+            alert(Alert.AlertType.WARNING, "Verifica los valores numéricos (precio y stock).");
+        } catch (Exception e) {
+            alert(Alert.AlertType.ERROR, e.getMessage());
+        }
+    }
+
+    private void loadToForm(Producto p) {
+        editingId = p.getIdProducto();
+        nombreField.setText(p.getNombre());
+        precioField.setText(String.valueOf(p.getPrecio()));
+        stockField.setText(String.valueOf(p.getStock()));
+        activoCheck.setSelected(p.getEstado().isActivo());
+        if (p.getMarca() != null) marcaCombo.getSelectionModel().select(p.getMarca());
+        else marcaCombo.getSelectionModel().clearSelection();
+        if (p.getCategoria() != null) categoriaCombo.getSelectionModel().select(p.getCategoria());
+        else categoriaCombo.getSelectionModel().clearSelection();
+    }
+
+    private void clearForm() {
+        editingId = null;
+        if (nombreField != null) nombreField.clear();
+        if (precioField != null) precioField.clear();
+        if (stockField != null) stockField.clear();
+        if (activoCheck != null) activoCheck.setSelected(true);
+        if (marcaCombo != null) marcaCombo.getSelectionModel().clearSelection();
+        if (categoriaCombo != null) categoriaCombo.getSelectionModel().clearSelection();
+        mode = Mode.NONE;
+        validarFormulario();
+    }
+
+    // --- INICIO DE CAMBIOS ---
+    private void setupFilterComboBoxes() {
+        // Marca
+        marcaFilterCombo.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Marca item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Todas las Marcas" : item.getNombre());
+            }
+        });
+        marcaFilterCombo.setCellFactory(cb -> new ListCell<>() {
+            @Override protected void updateItem(Marca item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Todas las Marcas" : item.getNombre());
+            }
+        });
+
+        // Categoría
+        categoriaFilterCombo.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Categoria item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Todas las Categorías" : item.getNombre());
+            }
+        });
+        categoriaFilterCombo.setCellFactory(cb -> new ListCell<>() {
+            @Override protected void updateItem(Categoria item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Todas las Categorías" : item.getNombre());
+            }
+        });
+    }
+    // --- FIN DE CAMBIOS ---
+
+    private void setupFormComboBoxes() {
         marcaCombo.setButtonCell(new ListCell<>() {
             @Override protected void updateItem(Marca item, boolean empty) {
                 super.updateItem(item, empty);
@@ -131,203 +363,9 @@ public class ProductoController implements SupportsClose {
                 setText(empty || item==null ? "" : item.getNombre());
             }
         });
-
-        // Selección en tabla => modo EDITAR
-        tabla.getSelectionModel().selectedItemProperty().addListener((obs, a, sel) -> {
-            if (sel == null) {
-                clearForm(); // mode -> NONE
-            } else {
-                mode = Mode.EDITAR;
-                loadToForm(sel);
-            }
-            validarFormulario();
-        });
-
-        // Validación de formulario y estado del botón Guardar
-        guardarBtn.setDisable(true);
-        nombreField.textProperty().addListener((o, a, b) -> validarFormulario());
-        precioField.textProperty().addListener((o, a, b) -> validarFormulario());
-        stockField.textProperty().addListener((o, a, b) -> validarFormulario());
-        marcaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
-        categoriaCombo.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> validarFormulario());
-        activoCheck.selectedProperty().addListener((o, a, b) -> validarFormulario());
-
-        // Cargar datos iniciales
-        onRefresh();
-    }
-
-    private void validarFormulario() {
-        boolean modoActivo = mode != Mode.NONE;
-
-        String n = ValidacionUtils.normalizeBasic(nombreField.getText());
-        boolean okNombre = n.length() >= 3 && n.length() <= 50;
-
-        boolean okPrecio = false;
-        try {
-            double p = Double.parseDouble(safeTrim(precioField.getText()));
-            okPrecio = p >= 0;
-        } catch (Exception ignored) {}
-
-        boolean okStock = false;
-        try {
-            int s = Integer.parseInt(safeTrim(stockField.getText()));
-            okStock = s >= 0;
-        } catch (Exception ignored) {}
-
-        boolean okMarca = marcaCombo.getValue() != null;
-        boolean okCategoria = categoriaCombo.getValue() != null;
-
-        boolean habilitar = modoActivo && okNombre && okPrecio && okStock && okMarca && okCategoria;
-        guardarBtn.setDisable(!habilitar);
-    }
-
-    private void applyFilters() {
-        final String q = normalizeForSearch(searchField.getText());
-        final String estadoSel = estadoFilter.getValue();
-
-        filtered.setPredicate(p -> {
-            if (p == null) return false;
-
-            if (Objects.equals(estadoSel, "Activos") && !p.getEstado().isActivo()) return false;
-            if (Objects.equals(estadoSel, "Inactivos") && p.getEstado().isActivo()) return false;
-
-            String nom = normalizeForSearch(p.getNombre());
-            String mar = normalizeForSearch(p.getMarca() != null ? p.getMarca().getNombre() : "");
-            String cat = normalizeForSearch(p.getCategoria() != null ? p.getCategoria().getNombre() : "");
-
-            if (q.isBlank()) return true;
-            return nom.contains(q) || mar.contains(q) || cat.contains(q);
-        });
-    }
-
-    private void applySort() {
-        String sel = ordenCombo.getValue();
-        if (sel == null) sel = "ID ↑";
-        switch (sel) {
-            case "ID ↓" -> data.sort(Comparator.comparing(Producto::getIdProducto).reversed());
-            case "Nombre ↑" -> data.sort(Comparator.comparing(Producto::getNombre, String.CASE_INSENSITIVE_ORDER));
-            case "Nombre ↓" -> data.sort(Comparator.comparing(Producto::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
-            case "Precio ↑" -> data.sort(Comparator.comparingDouble(Producto::getPrecio));
-            case "Precio ↓" -> data.sort(Comparator.comparingDouble(Producto::getPrecio).reversed());
-            case "Stock ↑" -> data.sort(Comparator.comparingInt(Producto::getStock));
-            case "Stock ↓" -> data.sort(Comparator.comparingInt(Producto::getStock).reversed());
-            default -> data.sort(Comparator.comparing(Producto::getIdProducto));
-        }
-    }
-
-    private static String normalizeForSearch(String s) {
-        String k = ValidacionUtils.normalizedKey(s == null ? "" : s);
-        return k.replaceAll("[^a-z0-9\\s]", "");
-    }
-
-    @FXML
-    public void onRefresh() {
-        // Recargar combos (por si cambian marcas/categorías activas)
-        marcaCombo.getItems().setAll(marcaServicio.listActive());
-        categoriaCombo.getItems().setAll(categoriaServicio.listActive());
-
-        // Limpiar filtros
-        if (searchField != null) searchField.clear();
-        if (estadoFilter != null) estadoFilter.setValue("Todos");
-        if (ordenCombo != null) ordenCombo.setValue("ID ↑");
-
-        // Recargar datos
-        data.setAll(servicio.listAll());
-        data.sort(Comparator.comparing(Producto::getIdProducto));
-        applyFilters();
-
-        tabla.getSelectionModel().clearSelection();
-        clearForm(); // mode -> NONE, deshabilita Guardar
-    }
-
-    // Formulario: Nuevo
-    @FXML
-    private void onNuevo() {
-        tabla.getSelectionModel().clearSelection();
-        clearForm();
-        mode = Mode.CREAR;
-        validarFormulario();
-        nombreField.requestFocus();
-    }
-
-    // Formulario: Guardar (crea o actualiza)
-    @FXML
-    private void onGuardar() {
-        try {
-            String nombre = safeTrim(nombreField.getText());
-            if (nombre.isEmpty()) {
-                alert(Alert.AlertType.WARNING, "Ingresa el nombre");
-                return;
-            }
-            double precio = Double.parseDouble(safeTrim(precioField.getText()));
-            int stock = Integer.parseInt(safeTrim(stockField.getText()));
-            Marca marca = marcaCombo.getValue();
-            Categoria categoria = categoriaCombo.getValue();
-            Estado estado = (activoCheck.isSelected() ? Estado.ACTIVO : Estado.INACTIVO);
-
-            if (mode == Mode.CREAR) {
-                // Crear respetando el check (create no recibe estado)
-                Producto nuevo = servicio.create(nombre, precio, stock, marca, categoria);
-                if (!activoCheck.isSelected()) {
-                    servicio.toggleEstado(nuevo.getIdProducto());
-                }
-                alert(Alert.AlertType.INFORMATION, "Producto creado correctamente.");
-            } else if (mode == Mode.EDITAR) {
-                if (editingId == null) {
-                    alert(Alert.AlertType.WARNING, "No hay selección para editar.");
-                    return;
-                }
-                servicio.update(editingId, nombre, precio, stock, estado, marca, categoria);
-                alert(Alert.AlertType.INFORMATION, "Producto actualizado correctamente.");
-            } else {
-                // Modo NONE: no debería guardar
-                return;
-            }
-
-            onRefresh();
-        } catch (NumberFormatException nfe) {
-            alert(Alert.AlertType.WARNING, "Verifica los valores numéricos (precio y stock).");
-        } catch (Exception e) {
-            alert(Alert.AlertType.ERROR, e.getMessage());
-        }
-    }
-
-    private void loadToForm(Producto p) {
-        editingId = p.getIdProducto();
-        nombreField.setText(p.getNombre());
-        precioField.setText(String.valueOf(p.getPrecio()));
-        stockField.setText(String.valueOf(p.getStock()));
-        activoCheck.setSelected(p.getEstado().isActivo());
-
-        // Seleccionar marca/categoría si están en las listas (pueden ser null)
-        if (p.getMarca() != null) {
-            marcaCombo.getSelectionModel().select(p.getMarca());
-        } else {
-            marcaCombo.getSelectionModel().clearSelection();
-        }
-        if (p.getCategoria() != null) {
-            categoriaCombo.getSelectionModel().select(p.getCategoria());
-        } else {
-            categoriaCombo.getSelectionModel().clearSelection();
-        }
-    }
-
-    private void clearForm() {
-        editingId = null;
-        if (nombreField != null) nombreField.clear();
-        if (precioField != null) precioField.clear();
-        if (stockField != null) stockField.clear();
-        if (activoCheck != null) activoCheck.setSelected(true);
-        if (marcaCombo != null) marcaCombo.getSelectionModel().clearSelection();
-        if (categoriaCombo != null) categoriaCombo.getSelectionModel().clearSelection();
-        mode = Mode.NONE;
-        validarFormulario();
     }
 
     private static String safeTrim(String s) { return s == null ? "" : s.trim(); }
-
     private void alert(Alert.AlertType type, String msg) { new Alert(type, msg).showAndWait(); }
-
-    @FXML
-    public void onSalir() { onClose.run(); }
+    @FXML public void onSalir() { onClose.run(); }
 }

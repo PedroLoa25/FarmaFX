@@ -24,26 +24,19 @@ public class FarmaFXApplication extends Application {
     @Override
     public void start(Stage stage) {
         this.primaryStage = stage;
-
-        // Configuración del cierre de la aplicación (botón X de la ventana)
         primaryStage.setOnCloseRequest(evt -> {
-            evt.consume(); // Prevenimos el cierre inmediato
+            evt.consume();
             confirmAndExit();
         });
 
         showLoginScreen();
     }
 
-    /**
-     * Muestra la pantalla de login.
-     */
     public void showLoginScreen() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Parent root = loader.load();
 
-            // Pasamos un "callback" al controlador de login.
-            // Cuando el login sea exitoso, se ejecutará this::showMainScreen.
             LoginController controller = loader.getController();
             controller.setOnLoginSuccess(this::showMainScreen);
 
@@ -60,10 +53,6 @@ public class FarmaFXApplication extends Application {
         }
     }
 
-    /**
-     * Muestra la pantalla principal (Admin o Cliente) según el rol del usuario.
-     * @param usuario El usuario que ha iniciado sesión.
-     */
     public void showMainScreen(Usuario usuario) {
         try {
             String fxmlFile = usuario.getRol() == RolUsuario.ADMIN
@@ -73,8 +62,6 @@ public class FarmaFXApplication extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
 
-            // Pasamos un "callback" al controlador principal.
-            // Cuando se cierre sesión, se ejecutará this::showLoginScreen.
             Object controller = loader.getController();
             if (controller instanceof AdminMainController amc) {
                 amc.initData(usuario, this::showLoginScreen, this::confirmAndExit);
@@ -93,9 +80,6 @@ public class FarmaFXApplication extends Application {
         }
     }
 
-    /**
-     * Muestra una alerta de confirmación y cierra la aplicación si el usuario acepta.
-     */
     private void confirmAndExit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Salir");
@@ -107,9 +91,6 @@ public class FarmaFXApplication extends Application {
         }
     }
 
-    /**
-     * Muestra un diálogo de error genérico.
-     */
     private void showError(String message, Exception e) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

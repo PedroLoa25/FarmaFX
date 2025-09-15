@@ -12,9 +12,7 @@ public final class TableViewUtils {
         for (TableColumn<?, ?> c : table.getColumns()) {
             disableCol(c);
         }
-        // Limpia cualquier flecha/orden actual
         table.getSortOrder().clear();
-        // Opcional: oculta menú de cabecera (mostrar/ocultar columnas)
         table.setTableMenuButtonVisible(false);
     }
 

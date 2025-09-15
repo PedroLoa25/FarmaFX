@@ -105,7 +105,7 @@ public class CategoriaController implements SupportsClose {
     }
 
     private void applyFilters() {
-        final String q = normalizeForSearch(searchField.getText());
+        final String q = ValidacionUtils.normalizeForSearch(searchField.getText());
         final String estadoSel = estadoFilter.getValue();
 
         filtered.setPredicate(cat -> {
@@ -116,7 +116,7 @@ public class CategoriaController implements SupportsClose {
             if (Objects.equals(estadoSel, "Inactivos") && cat.getEstado().isActivo()) return false;
 
             // Búsqueda por nombre (contiene, sin tildes/símbolos)
-            String nom = normalizeForSearch(cat.getNombre());
+            String nom = ValidacionUtils.normalizeForSearch(cat.getNombre());
             return q.isBlank() || nom.contains(q);
         });
     }
@@ -130,11 +130,6 @@ public class CategoriaController implements SupportsClose {
             case "Nombre ↓" -> data.sort(Comparator.comparing(Categoria::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
             default -> data.sort(Comparator.comparing(Categoria::getIdCategoria)); // "ID ↑"
         }
-    }
-
-    private static String normalizeForSearch(String s) {
-        String k = ValidacionUtils.normalizedKey(s == null ? "" : s);
-        return k.replaceAll("[^a-z0-9\\s]", "");
     }
 
     @FXML

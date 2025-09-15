@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.PromocionController">
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="GESTIÓN DE PROMOCIONES">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="searchField" promptText="Buscar por nombre..." HBox.hgrow="ALWAYS" />
+                <ChoiceBox fx:id="estadoFilter" prefWidth="100.0" />
+                <ComboBox fx:id="ordenCombo" prefWidth="150.0" />
+                <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefresh" text="Refresh" />
+            </children>
+            <BorderPane.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </BorderPane.margin>
+        </HBox>
+    </top>
+    <center>
+        <TableView fx:id="tabla" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+                <TableColumn fx:id="colNombre" prefWidth="300.0" text="Nombre / Descripción" />
+                <TableColumn fx:id="colPrecioOriginal" prefWidth="120.0" text="Precio Original" />
+                <TableColumn fx:id="colPrecioOferta" prefWidth="120.0" text="Precio Oferta" />
+                <TableColumn fx:id="colEstado" prefWidth="100.0" text="Estado" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+            <BorderPane.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" />
+            </BorderPane.margin>
+        </TableView>
+    </center>
+    <right>
+        <VBox prefWidth="250.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Formulario de Promoción">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Label>
+                <Label text="Nombre / Descripción" />
+                <TextField fx:id="nombreField" />
+                <Label text="Precio Original (S/.)" />
+                <TextField fx:id="precioOriginalField" />
+                <Label text="Precio de Oferta (S/.)" />
+                <TextField fx:id="precioOfertaField" />
+                <CheckBox fx:id="activoCheck" mnemonicParsing="false" selected="true" text="Activo" />
+                <HBox alignment="CENTER" prefHeight="40.0" spacing="10.0">
+                    <children>
+                        <Button fx:id="nuevoBtn" mnemonicParsing="false" onAction="#onNuevo" prefWidth="80.0" text="Nuevo" />
+                        <Button fx:id="guardarBtn" mnemonicParsing="false" onAction="#onGuardar" prefWidth="80.0" text="Guardar" />
+                    </children>
+                </HBox>
+            </children>
+            <BorderPane.margin>
+                <Insets bottom="10.0" right="10.0" top="10.0" />
+            </BorderPane.margin>
+            <padding>
+                <Insets left="10.0" />
+            </padding>
+        </VBox>
+    </right>
+</BorderPane>

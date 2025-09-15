@@ -96,7 +96,7 @@ public class MarcaController implements SupportsClose {
     }
 
     private void applyFilters() {
-        final String q = normalizeForSearch(searchField.getText());
+        final String q = ValidacionUtils.normalizeForSearch(searchField.getText());
         final String estadoSel = estadoFilter.getValue();
 
         filtered.setPredicate(m -> {
@@ -105,7 +105,7 @@ public class MarcaController implements SupportsClose {
             if (Objects.equals(estadoSel, "Activos") && !m.getEstado().isActivo()) return false;
             if (Objects.equals(estadoSel, "Inactivos") && m.getEstado().isActivo()) return false;
 
-            String nom = normalizeForSearch(m.getNombre());
+            String nom = ValidacionUtils.normalizeForSearch(m.getNombre());
             return q.isBlank() || nom.contains(q);
         });
     }
@@ -119,11 +119,6 @@ public class MarcaController implements SupportsClose {
             case "Nombre ↓" -> data.sort(Comparator.comparing(Marca::getNombre, String.CASE_INSENSITIVE_ORDER).reversed());
             default -> data.sort(Comparator.comparing(Marca::getIdMarca));
         }
-    }
-
-    private static String normalizeForSearch(String s) {
-        String k = ValidacionUtils.normalizedKey(s == null ? "" : s);
-        return k.replaceAll("[^a-z0-9\\s]", "");
     }
 
     @FXML
