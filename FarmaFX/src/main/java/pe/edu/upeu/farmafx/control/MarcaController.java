@@ -44,7 +44,8 @@ public class MarcaController implements SupportsClose {
     private Mode mode = Mode.NONE;
 
     private Runnable onClose = () -> {};
-    @Override public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
+    @Override
+    public void setOnClose(Runnable r) { this.onClose = (r != null) ? r : () -> {}; }
 
     @FXML
     public void initialize() {

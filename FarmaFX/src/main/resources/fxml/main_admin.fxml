@@ -12,15 +12,15 @@
                     <items>
                         <MenuItem onAction="#onLogout" text="Cerrar sesión" />
                         <SeparatorMenuItem />
-                        <MenuItem onAction="#onExit" text="Salir" />
+                            <MenuItem onAction="#onExit" text="Salir" />
                     </items>
                 </Menu>
                 <Menu text="Gestión">
                     <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onOpenPromociones" text="Promociones" />
                         <MenuItem onAction="#onOpenCategorias" text="Categorías" />
                         <MenuItem onAction="#onOpenMarcas" text="Marcas" />
                         <SeparatorMenuItem />
+                        <MenuItem onAction="#onOpenPromociones" text="Promociones" />
                         <MenuItem onAction="#onOpenProductos" text="Productos" />
                     </items>
                 </Menu>
@@ -36,14 +36,6 @@
         <VBox alignment="CENTER" spacing="12">
             <children>
                 <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="FarmaFX - Admin" />
-                <HBox spacing="10">
-                    <children>
-                        <Label style="-fx-font-weight: bold;" text="DNI:" />
-                        <Label fx:id="dniLabel" text="-" />
-                        <Label style="-fx-font-weight: bold;" text="Rol:" />
-                        <Label fx:id="rolLabel" text="-" />
-                    </children>
-                </HBox>
                 <Label style="-fx-text-fill: #777;" text="Panel principal de administración" />
             </children>
             <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>

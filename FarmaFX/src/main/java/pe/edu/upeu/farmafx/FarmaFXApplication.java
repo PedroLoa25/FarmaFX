@@ -8,18 +8,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import pe.edu.upeu.farmafx.control.AdminMainController;
-import pe.edu.upeu.farmafx.control.ClienteMainController;
 import pe.edu.upeu.farmafx.control.LoginController;
 import pe.edu.upeu.farmafx.enums.RolUsuario;
 import pe.edu.upeu.farmafx.modelo.Usuario;
-
 import java.io.IOException;
 import java.util.Optional;
 
 public class FarmaFXApplication extends Application {
 
+    private static FarmaFXApplication instance;
     private Stage primaryStage;
+
+    public FarmaFXApplication() {
+        instance = this;
+    }
+    public static FarmaFXApplication getInstance() {
+        return instance;
+    }
 
     @Override
     public void start(Stage stage) {
@@ -28,7 +33,6 @@ public class FarmaFXApplication extends Application {
             evt.consume();
             confirmAndExit();
         });
-
         showLoginScreen();
     }
 
@@ -61,13 +65,6 @@ public class FarmaFXApplication extends Application {
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
-
-            Object controller = loader.getController();
-            if (controller instanceof AdminMainController amc) {
-                amc.initData(usuario, this::showLoginScreen, this::confirmAndExit);
-            } else if (controller instanceof ClienteMainController cmc) {
-                cmc.initData(usuario, this::showLoginScreen, this::confirmAndExit);
-            }
 
             primaryStage.setTitle("FarmaFX - " + usuario.getRol());
             primaryStage.setScene(new Scene(root));
