@@ -25,6 +25,27 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Button loginButton;
     @FXML private Label errorLabel;
+    @FXML private TextField userField;
+    @FXML private PasswordField passField;
+
+    private Runnable onLoginSuccess;
+
+    public void setOnLoginSuccess(Runnable r) {
+        this.onLoginSuccess = r;
+    }
+
+    @FXML
+    private void onIngresar() {
+        String u = userField.getText()==null ? "" : userField.getText().trim();
+        String p = passField.getText()==null ? "" : passField.getText().trim();
+
+        // TODO: valida contra tu servicio real
+        if ("admin".equals(u) && "admin".equals(p)) {
+            if (onLoginSuccess != null) onLoginSuccess.run();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Credenciales inválidas").showAndWait();
+        }
+    }
 
     private final UsuarioServicioI usuarioServicio = UsuarioServicioImp.getInstance();
 

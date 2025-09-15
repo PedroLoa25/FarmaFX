@@ -13,9 +13,9 @@ import java.util.Optional;
 public class FarmaFXApplication extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
         Scene scene = new Scene(loader.load());
-        stage.setTitle("FarmaFX - Login");
+        stage.setTitle("FarmaFX");
         stage.setScene(scene);
         stage.setResizable(false);
 
