@@ -81,17 +81,17 @@ public class MainController {
 
     public void showCategorias() {
         setMenusVisible(false); // aislar módulos
-        loadIntoCenter("/fxml/categoria.fxml");
+        loadIntoCenter("/fxml/categorias.fxml");
     }
 
     public void showMarcas() {
         setMenusVisible(false);
-        loadIntoCenter("/fxml/marca.fxml");
+        loadIntoCenter("/fxml/marcas.fxml");
     }
 
     public void showProductos() {
         setMenusVisible(false);
-        loadIntoCenter("/fxml/producto.fxml");
+        loadIntoCenter("/fxml/productos.fxml");
     }
 
     // Menú

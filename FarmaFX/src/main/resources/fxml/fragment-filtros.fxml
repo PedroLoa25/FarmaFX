@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<HBox spacing="8" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<HBox spacing="8" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <TextField fx:id="searchField" promptText="Buscar..." HBox.hgrow="ALWAYS"/>
         <ChoiceBox fx:id="estadoFilter" prefWidth="140.0"/>
