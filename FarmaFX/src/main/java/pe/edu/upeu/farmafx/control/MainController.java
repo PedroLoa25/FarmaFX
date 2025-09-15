@@ -7,6 +7,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import pe.edu.upeu.farmafx.enums.RolUsuario;
+import pe.edu.upeu.farmafx.modelo.Usuario;
 
 public class MainController {
 
@@ -50,17 +53,35 @@ public class MainController {
         setMenusVisible(false);
         FXMLLoader fx = loadIntoCenter("/fxml/login.fxml");
 
-        // Enlazar callback de éxito de login si el controller lo expone
         Object ctrl = fx.getController();
-        if (ctrl != null) {
-            try {
-                ctrl.getClass().getMethod("setOnLoginSuccess", Runnable.class)
-                        .invoke(ctrl, (Runnable) this::showCatalog);
-            } catch (NoSuchMethodException ignored) {
-                // Si LoginController no tiene el hook, puedes navegar desde el menú.
-            } catch (Exception ex) {
-                throw new RuntimeException("No se pudo enlazar login success", ex);
+        if (ctrl instanceof LoginController lc) {
+            lc.setOnLoginSuccess(this::showHome);
+        }
+    }
+
+    // Decide home según rol y reemplaza el root de la Scene
+    private void showHome(Usuario u) {
+        try {
+            String fxml = (u.getRol() == RolUsuario.ADMIN)
+                    ? "/fxml/main_admin.fxml"
+                    : "/fxml/main_cliente.fxml";
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent view = loader.load();
+
+            Object c = loader.getController();
+            if (c instanceof AdminMainController amc) {
+                amc.setUsuario(u);
+            } else if (c instanceof ClienteMainController cmc) {
+                cmc.setUsuario(u);
             }
+
+            // Reemplazar el root en el mismo Stage
+            Stage stage = (Stage) root.getScene().getWindow();
+            stage.getScene().setRoot(view);
+
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "No se pudo abrir la vista principal:\n" + e.getMessage()).showAndWait();
         }
     }
 
@@ -80,7 +101,7 @@ public class MainController {
     }
 
     public void showCategorias() {
-        setMenusVisible(false); // aislar módulos
+        setMenusVisible(false);
         loadIntoCenter("/fxml/categorias.fxml");
     }
 

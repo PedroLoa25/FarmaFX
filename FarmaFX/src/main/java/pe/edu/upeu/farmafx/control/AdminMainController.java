@@ -47,6 +47,11 @@ public class AdminMainController {
                 st.setTitle("FarmaFX - Login");
                 st.setScene(new Scene(rootLogin));
                 st.setResizable(false);
+
+                // Pantalla completa para el login
+                st.setFullScreen(true);
+                st.setFullScreenExitHint("");
+
                 st.show();
             } catch (IOException e) {
                 new Alert(Alert.AlertType.ERROR, "No se pudo abrir Login: " + e.getMessage()).showAndWait();

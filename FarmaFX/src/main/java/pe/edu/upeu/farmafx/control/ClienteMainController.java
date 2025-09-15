@@ -47,6 +47,11 @@ public class ClienteMainController {
                 st.setTitle("FarmaFX - Login");
                 st.setScene(new Scene(rootLogin));
                 st.setResizable(false);
+
+                // Pantalla completa para el login
+                st.setFullScreen(true);
+                st.setFullScreenExitHint("");
+
                 st.show();
             } catch (IOException e) {
                 new Alert(Alert.AlertType.ERROR, "No se pudo abrir Login: " + e.getMessage()).showAndWait();
@@ -67,7 +72,6 @@ public class ClienteMainController {
         new Alert(Alert.AlertType.INFORMATION, "FarmaFX\nVersión 0.1\nDesarrollado por: PedroLoa25").showAndWait();
     }
 
-    // Catálogos en modo estándar por ahora; luego podemos poner solo lectura si lo prefieres
     @FXML
     public void onOpenCategorias() {
         loadInCenter("/fxml/categorias.fxml");

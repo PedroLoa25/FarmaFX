@@ -17,7 +17,10 @@ public class FarmaFXApplication extends Application {
         Scene scene = new Scene(loader.load());
         stage.setTitle("FarmaFX");
         stage.setScene(scene);
-        stage.setResizable(false);
+
+        // Permite maximizar y arranca maximizada (sin usar fullscreen/F11)
+        stage.setResizable(true);
+        stage.setMaximized(true);
 
         stage.setOnCloseRequest(evt -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);

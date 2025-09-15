@@ -12,6 +12,7 @@ import pe.edu.upeu.farmafx.utils.ValidacionUtils;
 
 import java.util.Optional;
 import java.util.function.UnaryOperator;
+import java.util.function.Consumer;
 
 public class LoginController {
 
@@ -22,9 +23,9 @@ public class LoginController {
 
     private final UsuarioServicioI usuarioServicio = UsuarioServicioImp.getInstance();
 
-    // Hook para que MainController navegue al Catálogo al autenticar correctamente
-    private Runnable onLoginSuccess;
-    public void setOnLoginSuccess(Runnable r) { this.onLoginSuccess = r; }
+    // Hook: MainController decide adónde ir según el rol
+    private Consumer<Usuario> onLoginSuccess;
+    public void setOnLoginSuccess(Consumer<Usuario> c) { this.onLoginSuccess = c; }
 
     @FXML
     public void initialize() {
@@ -78,8 +79,7 @@ public class LoginController {
 
         try {
             Usuario u = usuarioServicio.authenticate(dni, pass);
-            // Autenticación correcta: NO abrir nuevas ventanas.
-            if (onLoginSuccess != null) onLoginSuccess.run();
+            if (onLoginSuccess != null) onLoginSuccess.accept(u);
         } catch (UsuarioServicioImp.ErrorCredenciales e) {
             errorLabel.setText(e.getMessage());
             resetLoginForm();
@@ -91,8 +91,6 @@ public class LoginController {
 
     @FXML
     public void abrirRegistro(ActionEvent event) {
-        // Puedes conservar tu diálogo modal si lo deseas;
-        // aquí lo dejamos simple para no complicar
         new Alert(Alert.AlertType.INFORMATION, "Registro no implementado en este ejemplo.").showAndWait();
     }
 
