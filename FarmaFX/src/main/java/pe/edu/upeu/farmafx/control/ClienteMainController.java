@@ -20,23 +20,17 @@ public class ClienteMainController {
     @FXML
     private AnchorPane contentPane;
 
-    public void initData(Usuario usuario) {
+    public void initialize() {
         onShowPromociones();
     }
 
     @FXML
     public void onShowPromociones() {
-        // ==================================================================
-        // RUTA CORREGIDA
-        // ==================================================================
         loadView("/fxml/cliente_promociones_view.fxml");
     }
 
     @FXML
     public void onShowProductos() {
-        // ==================================================================
-        // RUTA CORREGIDA
-        // ==================================================================
         loadView("/fxml/cliente_productos_view.fxml");
     }
 

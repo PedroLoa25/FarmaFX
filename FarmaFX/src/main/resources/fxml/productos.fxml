@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.ProductoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pe.edu.upeu.farmafx.control.ProductoController">
     <center>
         <TableView fx:id="tabla" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <columns>
@@ -33,16 +33,17 @@
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Label>
-                <TextField fx:id="searchField" promptText="Buscar por nombre, marca, categoría..." HBox.hgrow="ALWAYS" />
-                <ChoiceBox fx:id="estadoFilter" prefWidth="100.0" />
+                <TextField fx:id="searchField" maxWidth="150.0" prefHeight="26.0" promptText="Buscar por nombre, marca, categoría..." HBox.hgrow="ALWAYS" />
+                <ChoiceBox fx:id="estadoFilter" prefWidth="80.0" />
 
                 <!-- INICIO DE CAMBIOS -->
-                <ComboBox fx:id="marcaFilterCombo" prefWidth="150.0" promptText="Filtrar por Marca" />
+                <ComboBox fx:id="marcaFilterCombo" prefWidth="130.0" promptText="Filtrar por Marca" />
                 <ComboBox fx:id="categoriaFilterCombo" prefWidth="150.0" promptText="Filtrar por Categoría" />
                 <!-- FIN DE CAMBIOS -->
 
-                <ComboBox fx:id="ordenCombo" prefWidth="120.0" />
-                <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefresh" text="Refrescar" />
+                <ComboBox fx:id="ordenCombo" prefWidth="100.0" />
+                <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefresh" text="Refresh" />
+                <Button fx:id="salirBtn" text="Salir" onAction="#onSalir" />
             </children>
             <BorderPane.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
